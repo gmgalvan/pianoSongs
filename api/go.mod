@@ -1,4 +1,4 @@
-module lab/simpleServer/api
+module lab/pianoSong/api
 
 go 1.14
 

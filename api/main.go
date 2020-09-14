@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lab/simpleServer/api/server"
+	"lab/pianoSong/api/server"
 	"log"
 	"net/http"
 )
@@ -16,7 +16,7 @@ func main() {
 	// Start server config
 	mux := http.NewServeMux()
 	cfgServer := server.ConfigServer{
-		Addr: ":8081",
+		Addr: ":8080",
 		Mux:  mux,
 	}
 
