@@ -1,1 +1,3 @@
 /api/vendor
+.env
+.env_db
