@@ -1,6 +1,8 @@
 package server
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -108,19 +110,50 @@ func (s *Svr) getSong(id string) (*PianoSong, error) {
 	return pS, nil
 }
 
+func toCSV(songs []*PianoSong) ([]byte, error) {
+	songsRecord := make([][]string, 0)
+	for _, s := range songs {
+		song := make([]string, 0)
+		song = append(song, s.Id, s.Name, s.Autor, s.Description)
+		songsRecord = append(songsRecord, song)
+	}
+	headers := []string{"ID", "Name", "Autor", "Description"}
+	records := make([][]string, 0, len(headers))
+	records = append(records, headers)
+	for _, v := range songsRecord {
+		records = append(records, v)
+	}
+	b := &bytes.Buffer{}
+	wr := csv.NewWriter(b)
+	defer wr.Flush()
+	err := wr.WriteAll(records)
+	return b.Bytes(), err
+}
+
 // GetAllSongs --
 func (s *Svr) GetAllSongs(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
+		accept := req.Header.Get("Accept")
 		songs, err := s.getAll()
 		if err != nil {
 			http.Error(w, "could not get songs", http.StatusInternalServerError)
 		}
-		resp, err := json.Marshal(songs)
-		if err != nil {
-			http.Error(w, "could not marshall songs", http.StatusInternalServerError)
+		if accept == "text/csv" {
+			songsCsv, err := toCSV(songs)
+			if err != nil {
+				http.Error(w, "could not convert to csv", http.StatusInternalServerError)
+			}
+			w.Header().Set("Content/Type", "text/csv")
+			w.Write([]byte(songsCsv))
+		} else {
+			resp, err := json.Marshal(songs)
+			if err != nil {
+				http.Error(w, "could not marshall songs", http.StatusInternalServerError)
+			}
+			w.Header().Set("Content/Type", "application/json")
+			w.Write([]byte(resp))
 		}
-		w.Write([]byte(resp))
-		w.Header().Set("Content/Type", "application/json")
+
 	} else {
 		http.Error(w, "get only", http.StatusMethodNotAllowed)
 	}

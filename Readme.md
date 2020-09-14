@@ -41,9 +41,14 @@ curl -X GET http://localhost:8081/song/1
 curl -X GET http://localhost:8081/songs
 ```
 
+- get all songs on csv
+```console
+curl -H "Accept: text/csv" -X GET http://localhost:8081/songs
+```
+
 - update one song:
 ```console
-curl -H "Content-Type: application/json" -X PUT -d '{"name":"Habanerax Carmen", "autor":"Bizet", "description": ""}' http://localhost:8081/song/1
+curl -H "Accept: application/json" -X PUT -d '{"name":"Habanerax Carmen", "autor":"Bizet", "description": ""}' http://localhost:8081/song/1
 ```
 
 - delete one song by id
